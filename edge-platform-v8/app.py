@@ -143,7 +143,37 @@ class APIFootball(OddsProvider):
                             home_goals=int(goals["home"]),away_goals=int(goals["away"])))
         return out
 
-PROVIDERS = {"theoddsapi": TheOddsAPI(), "apifootball": APIFootball()}
+class BigBallsSports(OddsProvider):
+    """Big Balls Sports API. Requires BBS_API_KEY and BBS_API_BASE environment variables."""
+    name = "bbs"
+    def fetch(self, sport, markets="h2h,totals", **kw):
+        base = os.getenv("BBS_API_BASE", "https://api.bigballssports.com")
+        key = os.getenv("BBS_API_KEY", "")
+        if not key: raise RuntimeError("BBS_API_KEY is not configured")
+        r = httpx.get(f"{base}/v1/sports/{sport}/odds", timeout=30,
+                      headers={"Authorization": f"Bearer {key}"})
+        r.raise_for_status()
+        payload = r.json()
+        rows = []
+        for e in payload.get("events", []):
+            for b in e.get("bookmakers", []):
+                for m in b.get("markets", []):
+                    if m.get("key") in markets.split(","):
+                        for o in m.get("outcomes", []):
+                            rows.append(dict(
+                                event_id=e.get("id"),
+                                home=e.get("home_team"),
+                                away=e.get("away_team"),
+                                commence=e.get("commence_time"),
+                                bookmaker=b.get("key"),
+                                market=m.get("key"),
+                                selection=o.get("name"),
+                                point=o.get("point"),
+                                price=o.get("price")
+                            ))
+        return rows
+
+PROVIDERS = {"theoddsapi": TheOddsAPI(), "apifootball": APIFootball(), "bbs": BigBallsSports()}
 
 # ---------- Maths ----------
 def devig(prices):
