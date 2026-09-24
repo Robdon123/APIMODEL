@@ -1,0 +1,101 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#0d1117"><title>Edge Platform</title>
+<style>:root{--bg:#0d1117;--c:#161b22;--l:#2a313c;--t:#e6edf3;--m:#8b949e;--a:#2ea043;--r:#f85149;--i:#0d1117}
+@media(prefers-color-scheme:light){:root{--bg:#f4f6f8;--c:#fff;--l:#d5dbe1;--t:#1b1f24;--m:#5c6670;--a:#1a7f37;--r:#cf222e;--i:#fff}}
+*{box-sizing:border-box}body{margin:0 auto;max-width:1100px;padding:12px;font:14px/1.45 system-ui,sans-serif;background:var(--bg);color:var(--t)}
+.card{background:var(--c);border:1px solid var(--l);border-radius:10px;padding:12px;margin-bottom:12px}h1{font-size:20px}h2{font-size:15px;margin:0 0 8px}
+input,select{padding:7px;border:1px solid var(--l);border-radius:6px;background:var(--i);color:var(--t);font:inherit;width:100%}
+button{padding:8px 14px;border:0;border-radius:6px;background:var(--a);color:#fff;font-weight:600;cursor:pointer}button.alt{background:none;border:1px solid var(--l);color:var(--t)}
+.g{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:8px}label{font-size:12px;color:var(--m);display:block}
+.w{overflow-x:auto}table{width:100%;border-collapse:collapse;min-width:640px}th,td{padding:6px 8px;border-bottom:1px solid var(--l);text-align:left;white-space:nowrap}th{color:var(--m);font-size:12px}
+.p{color:var(--a);font-weight:700}.m{color:var(--m);font-size:12px}pre{white-space:pre-wrap;font-size:12px;margin:4px 0}.tabs{display:flex;gap:6px;margin-bottom:12px;flex-wrap:wrap}.h{display:none}</style></head><body>
+<h1>Edge Platform</h1><div class="m">Quantitative analysis, not tips. No edge is proven until the CLV report says so. 18+ · BeGambleAware.org · GamStop</div>
+<div class="tabs" style="margin-top:8px"><button data-t="s">Scanner</button><button class="alt" data-t="f">Football</button><button class="alt" data-t="u">UFC</button><button class="alt" data-t="r">Paper / CLV</button><button class="alt" data-t="q">Research</button><button class="alt" data-t="d">Data</button></div>
+
+<section id="s"><div class="card"><div class="g"><div><label>Competition</label><select id="sp"><option value="soccer_epl">Premier League</option><option value="soccer_spain_la_liga">La Liga</option><option value="soccer_italy_serie_a">Serie A</option><option value="soccer_germany_bundesliga">Bundesliga</option><option value="soccer_france_ligue_one">Ligue 1</option><option value="soccer_uefa_champs_league">Champions League</option><option value="mma_mixed_martial_arts">UFC / MMA</option></select></div>
+<div><label>Provider</label><select id="pv"><option value="theoddsapi">The Odds API</option><option value="apifootball">API-Football</option></select></div><div><label>Min EV %</label><input id="mev" type="number" value="3"></div><div><label>Min books</label><input id="mb" type="number" value="4"></div>
+<div style="align-self:end"><button id="go">Refresh live odds</button></div></div><div id="st" class="m" style="margin-top:6px"></div></div>
+<div class="card"><h2>Automated UK Odds Monitor</h2>
+<div class="g">
+<div><label>Auto scanner</label><select id="auto"><option value="0">OFF</option><option value="1">ON</option></select></div>
+<div><label>Scan interval (seconds)</label><input id="interval" type="number" min="60" value="300"></div>
+<div><label>Max odds age (seconds)</label><input id="age" type="number" min="15" value="180"></div>
+<div><label>Scanner min EV %</label><input id="sev" type="number" step="0.5" value="3"></div>
+<div><label>Scanner min books</label><input id="sbooks" type="number" min="2" value="4"></div>
+<div style="align-self:end"><button id="saveScanner">Save scanner settings</button></div>
+<div style="align-self:end"><button id="scanNow" class="alt">Scan now</button></div>
+</div>
+<div id="scannerStatus" class="m" style="margin-top:8px">Scanner status loading…</div>
+<div id="providerCoverage" class="m" style="margin-top:4px"></div>
+</div>
+<div class="card"><h2>Opportunities</h2><div class="w"><table><thead><tr><th>Event</th><th>Market</th><th>Pick</th><th>Odds</th><th>Book</th><th>Fair odds</th><th>Edge</th><th>EV</th><th>Conf.</th><th>Tier</th><th>Stake (¼ Kelly)</th><th></th></tr></thead><tbody id="op"></tbody></table></div></div></section>
+
+<section id="f" class="h"><div class="card"><h2>Football – Dixon-Coles</h2><div class="g" id="ff"></div><button id="fb" style="margin-top:8px">Calculate</button><div class="w"><table><tbody id="fo"></tbody></table></div></div></section>
+<section id="u" class="h"><div class="card"><h2>UFC – method & rounds</h2><div class="g" id="uf"></div><button id="ub" style="margin-top:8px">Calculate</button><div class="w"><table><tbody id="uo"></tbody></table></div></div></section>
+<section id="r" class="h"><div class="card"><h2>Paper trading report</h2><button id="rb" class="alt">Refresh</button><pre id="ro"></pre></div></section>
+<section id="d" class="h"><div class="card"><h2>Historical Data & Capture</h2><div class="g"><div><label>Competition</label><select id="dsp"><option value="soccer_epl">Premier League</option><option value="soccer_spain_la_liga">La Liga</option><option value="soccer_italy_serie_a">Serie A</option><option value="soccer_germany_bundesliga">Bundesliga</option></select></div><div><label>Capture interval (sec)</label><input id="di" type="number" min="60" value="300"></div><div><label>Historical start</label><input id="ds" type="date"></div><div><label>Historical end</label><input id="de" type="date"></div><div style="align-self:end"><button id="dcfg">Enable capture</button></div><div style="align-self:end"><button id="dcap" class="alt">Capture now</button></div><div style="align-self:end"><button id="dres" class="alt">Import results</button></div><div style="align-self:end"><button id="dqual" class="alt">Data quality</button></div></div><pre id="do">The collector stores timestamped odds snapshots and canonical event links. Historical Odds API imports require the appropriate subscription.</pre></div></section>
+<section id="q" class="h"><div class="card"><h2>Research / Forecasting Engine</h2><div class="g"><div><label>Competition</label><select id="rsp"><option value="soccer_epl">Premier League</option><option value="soccer_spain_la_liga">La Liga</option><option value="soccer_italy_serie_a">Serie A</option><option value="soccer_germany_bundesliga">Bundesliga</option><option value="soccer_france_ligue_one">Ligue 1</option><option value="soccer_uefa_champs_league">Champions League</option></select></div><div style="align-self:end"><button id="qstatus" class="alt">Status</button></div><div style="align-self:end"><button id="qfit">Fit model</button></div><div style="align-self:end"><button id="qcal" class="alt">Calibrate</button></div><div style="align-self:end"><button id="qbm" class="alt">Bookmaker diagnostics</button></div><div style="align-self:end"><button id="qbt" class="alt">Walk-forward v2</button></div><div style="align-self:end"><button id="qfactory">Research factory</button></div><div style="align-self:end"><button id="qcampaign" class="alt">Multi-season campaign</button></div><div style="align-self:end"><button id="qstability" class="alt">Stability test</button></div><div style="align-self:end"><button id="qgate" class="alt">Evaluate signal gate</button></div><div style="align-self:end"><button id="qgatecfg" class="alt">Enable validated-signal gate</button></div></div><pre id="qo">Research engine uses settled results only for model fitting; odds are evaluated separately. The validated-signal gate stays off until you explicitly enable it.</pre></div></section>
+
+<script>
+const $=s=>document.querySelector(s),esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])),pc=x=>(x*100).toFixed(1)+'%';
+document.querySelectorAll('[data-t]').forEach(b=>b.onclick=()=>{document.querySelectorAll('[data-t]').forEach(x=>x.className='alt');b.className='';['s','f','u','r','q','d'].forEach(i=>$('#'+i).classList.toggle('h',i!==b.dataset.t))});
+const j=async(u,o)=>{const r=await fetch(u,o);if(!r.ok)throw new Error((await r.text()).slice(0,200));return r.json()};
+const post=(u,b)=>j(u,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(b)});
+let opps=[];
+async function load(){try{const q=`?min_ev=${$('#mev').value/100}&min_books=${$('#mb').value}`;const d=await j('/opportunities/'+$('#sp').value+q);
+ opps=Array.isArray(d)?d:[];$('#op').innerHTML=opps.map((o,i)=>`<tr><td>${esc(o.event)}</td><td>${esc(o.market)} ${o.point??''}</td><td>${esc(o.selection)}</td><td>${o.best_odds}</td><td>${esc(o.bookmaker)}</td><td>${o.fair_odds}</td><td>${pc(o.edge)}</td><td class="p">+${pc(o.ev)}</td><td>${o.confidence}</td><td>${o.tier}</td><td>${pc(o.kelly.recommended)}</td><td><button class="alt" onclick="track(${i})">Paper bet</button> <button class="alt" onclick="why(${i})">Why?</button></td></tr>`).join('')||'<tr><td colspan="12"><b>NO QUALIFYING BET</b></td></tr>'}catch(e){$('#st').textContent=e.message}}
+window.why=i=>{const o=opps[i];alert(`${o.event}\n${o.selection}\nFair probability ${pc(o.fair_prob)} from ${o.books} books (sharp books weighted 3x, margin removed via power method).\nBest price ${o.best_odds} at ${o.bookmaker} implies ${pc(1/o.best_odds)}.\nConfidence falls with fewer books and wider disagreement between them.\nKelly: full ${pc(o.kelly.full)}, half ${pc(o.kelly.half)}, quarter ${pc(o.kelly.quarter)}.`)};
+window.track=async i=>{const o=opps[i];try{const r=await post('/paper',{sport:$('#sp').value,event_id:o.event_id,market:o.market,selection:o.selection,point:o.point,bookmaker:o.bookmaker,odds:o.best_odds,fair_prob:o.fair_prob});$('#st').textContent='Paper bet #'+r.id+' logged. Refresh odds near kick-off, then POST /paper/'+r.id+'/close for CLV.'}catch(e){$('#st').textContent=e.message}};
+$('#go').onclick=async()=>{$('#st').textContent='Fetching…';try{const r=await post('/ingest/'+$('#sp').value+'?markets=h2h,totals&provider='+$('#pv').value,{});$('#st').textContent=r.rows+' odds rows stored';await load()}catch(e){$('#st').textContent=e.message}};
+function form(id,fs){$(id).innerHTML=fs.map(([k,l,v])=>`<div><label>${l}</label><input id="${id.slice(1)}_${k}" type="number" step="any" value="${v}"></div>`).join('')}
+form('#ff',[['home_xg_for','Home xG for',1.8],['home_xg_against','Home xG against',1],['away_xg_for','Away xG for',1.3],['away_xg_against','Away xG against',1.4],['league_avg','League avg',1.4],['home_adv','Home adv',1.12]]);
+form('#uf',[['p_a','A win prob (0-1)',.6],['a_ko','A KO share',.45],['a_sub','A sub share',.2],['b_ko','B KO share',.35],['b_sub','B sub share',.15],['rounds','Rounds',3]]);
+const vals=id=>Object.fromEntries([...$(id).querySelectorAll('input')].map(i=>[i.id.split('_').slice(1).join('_'),+i.value]));
+const rows=(el,a)=>$(el).innerHTML=a.map(([l,p])=>`<tr><td>${l}</td><td>${pc(p)}</td><td>fair ${(1/Math.max(p,1e-4)).toFixed(2)}</td></tr>`).join('');
+$('#fb').onclick=async()=>{try{const d=await post('/model/football',vals('#ff'));rows('#fo',[['Home win',d.home],['Draw',d.draw],['Away win',d.away],...Object.entries(d.over).map(([k,v])=>['Over '+k,v]),['BTTS Yes',d.btts],['BTTS No',1-d.btts],...d.top_scores.map(s=>['Score '+s.score,s.p])])}catch(e){$('#fo').innerHTML=esc(e.message)}};
+$('#ub').onclick=async()=>{try{const d=await post('/model/mma',vals('#uf'));rows('#uo',[['A wins',d.a_wins],['B wins',d.b_wins],['A by KO/TKO',d.a.ko],['A by Sub',d.a.sub],['A by Decision',d.a.dec],['B by KO/TKO',d.b.ko],['B by Sub',d.b.sub],['B by Decision',d.b.dec],['Goes distance',d.goes_distance],['Ends inside distance',d.ends_inside],...Object.entries(d.over_rounds).flatMap(([k,v])=>[['Over '+k+' rds',v],['Under '+k+' rds',1-v]])])}catch(e){$('#uo').innerHTML=esc(e.message)}};
+$('#rb').onclick=async()=>{try{$('#ro').textContent=JSON.stringify(await j('/paper/report'),null,2)}catch(e){$('#ro').textContent=e.message}};
+$('#qstatus').onclick=async()=>{try{$('#qo').textContent=JSON.stringify(await j('/research/status?sport='+encodeURIComponent($('#rsp').value)),null,2)}catch(e){$('#qo').textContent=e.message}};
+$('#qfit').onclick=async()=>{try{$('#qo').textContent='Fitting…';const d=await post('/research/fit?sport='+encodeURIComponent($('#rsp').value),{min_observations:30,validation_fraction:.2});$('#qo').textContent=JSON.stringify(d,null,2)}catch(e){$('#qo').textContent=e.message}};
+
+
+load();
+
+let scannerTimer=null;
+async function scannerStatus(){
+ try{
+  const s=await j('/scanner/status');
+  $('#auto').value=s.enabled?'1':'0'; $('#interval').value=s.interval_seconds; $('#age').value=s.max_odds_age_seconds;
+  $('#sev').value=(s.min_ev*100).toFixed(1); $('#sbooks').value=s.min_books;
+  const last=s.last_scan?new Date(s.last_scan*1000).toLocaleTimeString():'—';
+  const next=s.next_scan?new Date(s.next_scan*1000).toLocaleTimeString():'—';
+  $('#scannerStatus').textContent=`${s.enabled?'● ACTIVE':'○ OFF'} · Last scan ${last} · Next scan ${next} · Provider ${s.provider} · ${s.opportunities?.length||0} recent snapshots`;
+  $('#providerCoverage').textContent=`Observed bookmaker feeds: ${(s.bookmakers||[]).map(x=>x.bookmaker).join(', ')||'none yet'}`;
+ }catch(e){$('#scannerStatus').textContent='Scanner status: '+e.message}
+}
+$('#saveScanner').onclick=async()=>{
+ try{
+  const body={enabled:$('#auto').value==='1',interval_seconds:+$('#interval').value,max_odds_age_seconds:+$('#age').value,min_ev:+$('#sev').value/100,min_books:+$('#sbooks').value,provider:$('#pv').value,sports:[$('#sp').value]};
+  await post('/scanner/config',body); $('#st').textContent=body.enabled?'Automated scanner enabled.':'Automated scanner disabled.'; await scannerStatus();
+ }catch(e){$('#st').textContent=e.message}
+};
+$('#scanNow').onclick=async()=>{
+ $('#scannerStatus').textContent='Running scan…';
+ try{const r=await post('/scanner/scan?sport='+encodeURIComponent($('#sp').value),{});$('#st').textContent=`Scan ${r.run_id}: ${r.rows} odds rows, ${r.opportunities} qualifying opportunities`;await load();await scannerStatus()}
+ catch(e){$('#scannerStatus').textContent='Scan failed: '+e.message}
+};
+scannerStatus(); scannerTimer=setInterval(scannerStatus,5000);
+
+$('#qcal').onclick=async()=>{try{$('#qo').textContent='Calibrating…';const d=await post('/research/calibrate?sport='+encodeURIComponent($('#rsp').value)+'&min_training=60',{});$('#qo').textContent=JSON.stringify(d,null,2)}catch(e){$('#qo').textContent=e.message}};
+$('#qbm').onclick=async()=>{try{$('#qo').textContent='Calculating bookmaker diagnostics…';const d=await j('/research/bookmakers?sport='+encodeURIComponent($('#rsp').value)+'&min_observations=30');$('#qo').textContent=JSON.stringify(d,null,2)}catch(e){$('#qo').textContent=e.message}};
+$('#qbt').onclick=async()=>{try{$('#qo').textContent='Running walk-forward v2 with ROI/CLV diagnostics…';const d=await post('/research/backtest-v2',{sport:$('#rsp').value,min_training:60,retrain_every:20,min_ev:.03,stake_fraction:.01});$('#qo').textContent=JSON.stringify(d,null,2)}catch(e){$('#qo').textContent=e.message}};
+$('#qfactory').onclick=async()=>{try{$('#qo').textContent='Running multi-season research factory…';const d=await post('/research/factory',{sport:$('#rsp').value,min_training:80,retrain_every:20,min_ev:.03,min_books:4,max_odds_age_seconds:300,slippage_bps:10,stake_fraction:.01,max_bets_per_event:1});$('#qo').textContent=JSON.stringify(d,null,2)}catch(e){$('#qo').textContent=e.message}};
+$('#qcampaign').onclick=async()=>{try{$('#qo').textContent='Running multi-season campaign…';const d=await post('/research/campaign',{sports:[$('#rsp').value],seasons:[2021,2022,2023,2024,2025],ingest_results:true,historical_odds:false});$('#qo').textContent=JSON.stringify(d,null,2)}catch(e){$('#qo').textContent=e.message}};
+$('#qstability').onclick=async()=>{try{$('#qo').textContent='Running season/bookmaker stability analysis…';const d=await post('/research/stability',{sport:$('#rsp').value,min_season_bets:20,min_bookmaker_bets:20,min_positive_seasons:2,min_positive_bookmakers:2});$('#qo').textContent=JSON.stringify(d,null,2)}catch(e){$('#qo').textContent=e.message}};
+$('#qgate').onclick=async()=>{try{$('#qo').textContent='Evaluating validated-signal gate…';const d=await post('/research/gate/evaluate?sport='+encodeURIComponent($('#rsp').value),{});$('#qo').textContent=JSON.stringify(d,null,2)}catch(e){$('#qo').textContent=e.message}};
+$('#qgatecfg').onclick=async()=>{try{$('#qo').textContent='Enabling validated-signal gate with conservative defaults…';const d=await post('/research/gate/config',{enabled:true,min_bets:100,min_predictions:500,min_seasons:3,min_roi_ci:0,min_clv_ci:0,max_market_brier_gap:0,min_stable_seasons:2,min_stable_bookmakers:2,max_gate_age_hours:168});$('#qo').textContent=JSON.stringify(d,null,2)}catch(e){$('#qo').textContent=e.message}};
+$('#dcfg').onclick=async()=>{try{const d=await post('/data/config',{enabled:true,interval_seconds:+$('#di').value,sports:[$('#dsp').value],provider:$('#pv').value,markets:'h2h,totals'});$('#do').textContent=JSON.stringify(d,null,2)}catch(e){$('#do').textContent=e.message}};
+$('#dcap').onclick=async()=>{try{$('#do').textContent='Capturing…';const d=await post('/data/capture?sport='+encodeURIComponent($('#dsp').value)+'&provider='+encodeURIComponent($('#pv').value)+'&markets=h2h,totals',{});$('#do').textContent=JSON.stringify(d,null,2)}catch(e){$('#do').textContent=e.message}};
+$('#dres').onclick=async()=>{try{$('#do').textContent='Importing results…';const y=new Date().getFullYear()-1;const d=await post('/data/results?sport='+encodeURIComponent($('#dsp').value)+'&season='+y,{});$('#do').textContent=JSON.stringify(d,null,2)}catch(e){$('#do').textContent=e.message}};
+$('#dqual').onclick=async()=>{try{$('#do').textContent=JSON.stringify(await j('/data/quality?sport='+encodeURIComponent($('#dsp').value)),null,2)}catch(e){$('#do').textContent=e.message}};
+</script></body></html>
