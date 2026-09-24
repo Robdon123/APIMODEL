@@ -1540,3 +1540,58 @@ def research_benchmark(sport:str="soccer_epl"):
         rep=json.loads(r["report_json"] or "{}")
         out.append({"run_id":r["id"],"started_at":r["started_at"],"predictions":r["predictions"],"bets":r["bets"],"model_brier":rep.get("brier"),"market_brier":rep.get("market_brier"),"model_logloss":rep.get("logloss"),"market_logloss":rep.get("market_logloss"),"roi":rep.get("roi"),"mean_clv":rep.get("mean_clv"),"max_drawdown":rep.get("max_drawdown")})
     return {"sport":sport,"runs":out,"interpretation":"Compare model and market metrics over repeated out-of-sample runs; no single run establishes a durable betting edge."}
+
+from fastapi.responses import HTMLResponse
+
+@app.get("/", response_class=HTMLResponse)
+def root():
+    return """
+    <!DOCTYPE html>
+    <html>
+    <head>
+        <title>Edge Platform Dashboard</title>
+        <style>
+            body { font-family: Arial, sans-serif; margin: 20px; background: #f5f5f5; }
+            h1 { color: #333; }
+            .card { background: white; padding: 20px; margin: 10px 0; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+            a { color: #0066cc; text-decoration: none; }
+            a:hover { text-decoration: underline; }
+            .endpoints { display: grid; gap: 15px; margin-top: 20px; }
+        </style>
+    </head>
+    <body>
+        <h1>📊 Edge Platform – Automated Odds Monitor</h1>
+        <div class="card">
+            <p>Welcome to the Edge Platform. Below are the available interfaces and endpoints.</p>
+        </div>
+        <div class="endpoints">
+            <div class="card">
+                <h3>🔧 Interactive API Docs</h3>
+                <p><a href="/docs">Swagger UI</a> – Test all endpoints interactively</p>
+                <p><a href="/redoc">ReDoc</a> – Full API reference</p>
+            </div>
+            <div class="card">
+                <h3>📈 Scanner</h3>
+                <p><a href="/docs#/default/scanner_status_scanner_status_get">Check Scanner Status</a></p>
+                <p><a href="/docs#/default/scanner_opportunities_scanner_opportunities_get">View Opportunities</a></p>
+                <p><a href="/docs#/default/scanner_scan_scanner_scan_post">Run Scan</a></p>
+            </div>
+            <div class="card">
+                <h3>⚽ Models</h3>
+                <p><a href="/docs#/default/model_football_model_football_post">Football Model</a></p>
+                <p><a href="/docs#/default/model_mma_model_mma_post">MMA Model</a></p>
+            </div>
+            <div class="card">
+                <h3>📋 Paper Trading</h3>
+                <p><a href="/docs#/default/paper_paper_post">Place Paper Bet</a></p>
+                <p><a href="/docs#/default/report_paper_report_get">View Report</a></p>
+            </div>
+            <div class="card">
+                <h3>🔬 Research</h3>
+                <p><a href="/docs#/default/research_gate_evaluate_research_gate_evaluate_post">Evaluate Gate</a></p>
+                <p><a href="/docs#/default/research_benchmark_research_benchmark_get">Benchmark</a></p>
+            </div>
+        </div>
+    </body>
+    </html>
+    """
