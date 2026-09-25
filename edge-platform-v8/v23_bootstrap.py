@@ -31,8 +31,11 @@ for name in required:
     if not (runtime / name).exists():
         raise SystemExit(f'v23 extracted runtime missing {name}')
 
+# Preserve the old phone entry URL without weakening the full app's auth middleware.
+(runtime / 'cloud_entry_full.py').write_text('''from app import app as inner_app\n\nclass PhoneAlias:\n    def __init__(self, inner): self.inner = inner\n    async def __call__(self, scope, receive, send):\n        if scope.get("type") == "http" and scope.get("path") == "/mobile":\n            target = b"/login"\n            await send({"type":"http.response.start","status":307,"headers":[(b"location",target),(b"content-length",b"0")]})\n            await send({"type":"http.response.body","body":b""})\n            return\n        await self.inner(scope, receive, send)\n\napp = PhoneAlias(inner_app)\n''')
+
 os.chdir(runtime)
 os.environ.setdefault('EDGE_DB_PATH', '/data/edge.db')
 port = os.getenv('PORT', '8000')
 # Full v23 feature-parity runtime: never replace this with the lightweight cloud wrapper.
-os.execvp('uvicorn', ['uvicorn','app:app','--host','0.0.0.0','--port',port])
+os.execvp('uvicorn', ['uvicorn','cloud_entry_full:app','--host','0.0.0.0','--port',port])
