@@ -1,0 +1,146 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+<meta name="theme-color" content="#07111f" />
+<title>Edge Platform — Full Mobile</title>
+<style>
+:root{--bg:#07111f;--panel:#0d1a2b;--panel2:#101f33;--line:#203a56;--text:#eef6ff;--muted:#93a9c2;--blue:#4a7dff;--green:#31d08b;--amber:#ffbd4a;--red:#ff6b75;--shadow:0 12px 35px rgba(0,0,0,.22)}
+*{box-sizing:border-box}body{margin:0;background:linear-gradient(180deg,#06101d,#081523 45%,#07111f);color:var(--text);font:15px/1.45 system-ui,-apple-system,Segoe UI,Roboto,sans-serif;min-height:100vh}button,input,select{font:inherit}button{cursor:pointer}.wrap{max-width:1160px;margin:auto;padding:14px}.top{position:sticky;top:0;z-index:20;background:rgba(7,17,31,.94);backdrop-filter:blur(14px);border-bottom:1px solid var(--line);margin:-14px -14px 14px;padding:12px 14px}.brand{display:flex;align-items:center;justify-content:space-between;gap:12px}.brand h1{font-size:19px;margin:0}.pill{display:inline-flex;gap:7px;align-items:center;border:1px solid var(--line);background:#0a1727;border-radius:999px;padding:6px 10px;color:var(--muted);font-size:12px}.dot{width:8px;height:8px;border-radius:50%;background:var(--amber)}.dot.ok{background:var(--green)}.dot.bad{background:var(--red)}.connect{display:grid;grid-template-columns:1fr 1fr auto;gap:8px;margin-top:11px}.field{background:#071421;color:var(--text);border:1px solid #2b4867;border-radius:10px;padding:11px 12px;min-width:0}.btn{border:0;border-radius:10px;padding:11px 14px;background:var(--blue);color:#fff;font-weight:800}.btn.secondary{background:#172c45;border:1px solid #2e4d70}.btn.good{background:#168658}.btn.warn{background:#9c6a11}.btn.danger{background:#9e3340}.tabs{display:flex;overflow:auto;gap:7px;padding:2px 0 9px;scrollbar-width:none}.tabs::-webkit-scrollbar{display:none}.tab{white-space:nowrap;background:#0d1a2b;color:#adc1d8;border:1px solid var(--line);border-radius:999px;padding:9px 12px}.tab.active{background:#1b3970;color:white;border-color:#4a7dff}.grid{display:grid;grid-template-columns:repeat(12,1fr);gap:10px}.card{grid-column:span 12;background:linear-gradient(180deg,var(--panel2),var(--panel));border:1px solid var(--line);border-radius:14px;padding:14px;box-shadow:var(--shadow)}.card h2,.card h3{margin:0 0 10px}.muted{color:var(--muted)}.kv{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}.metric{background:#091625;border:1px solid #1b324b;border-radius:10px;padding:10px}.metric b{display:block;font-size:17px}.metric span{color:var(--muted);font-size:12px}.row{display:flex;align-items:center;justify-content:space-between;gap:10px}.fight{background:#091625;border:1px solid #1b324b;border-radius:12px;padding:12px;margin:9px 0}.fight-title{font-weight:850;font-size:15px}.chips{display:flex;flex-wrap:wrap;gap:5px;margin-top:8px}.chip{border-radius:999px;padding:5px 8px;background:#122842;border:1px solid #244466;color:#bdd0e5;font-size:12px}.chip.green{background:#103429;border-color:#1e6a50;color:#85e7bd}.chip.amber{background:#34290f;border-color:#6b541c;color:#ffd988}.chip.red{background:#381821;border-color:#743443;color:#ff9aa4}.actions{display:flex;flex-wrap:wrap;gap:8px;margin:9px 0}.section{display:none}.section.active{display:block}.tablewrap{overflow:auto;border:1px solid var(--line);border-radius:10px}.tbl{border-collapse:collapse;width:100%;min-width:720px}.tbl th,.tbl td{padding:9px;border-bottom:1px solid #1d354f;text-align:left;font-size:13px}.tbl th{position:sticky;top:0;background:#0c1a2a;color:#b7c8db}.raw{white-space:pre-wrap;overflow:auto;background:#050d17;border:1px solid #1c3046;border-radius:10px;padding:11px;max-height:420px;color:#cce0f4}.err{background:#35151b;border:1px solid #71303d;color:#ffadb5;border-radius:10px;padding:10px}.okbox{background:#0e3027;border:1px solid #23604e;color:#98e8c6;border-radius:10px;padding:10px}.notice{background:#2b230e;border:1px solid #69551e;color:#ffe099;border-radius:10px;padding:10px}.spinner{display:inline-block;width:14px;height:14px;border:2px solid #ffffff44;border-top-color:white;border-radius:50%;animation:spin .75s linear infinite;vertical-align:-2px}@keyframes spin{to{transform:rotate(360deg)}}
+@media(min-width:800px){.half{grid-column:span 6}.third{grid-column:span 4}.kv{grid-template-columns:repeat(4,minmax(0,1fr))}}@media(max-width:650px){.connect{grid-template-columns:1fr}.wrap{padding:10px}.top{margin:-10px -10px 12px;padding:10px}.brand h1{font-size:17px}.kv{grid-template-columns:1fr 1fr}.btn{min-height:44px}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="top">
+    <div class="brand"><h1>Edge Platform — Full Mobile</h1><div class="pill"><span id="dot" class="dot"></span><span id="connLabel">Not connected</span></div></div>
+    <div class="connect">
+      <input id="backend" class="field" value="https://apimodel-cloud-live-production.up.railway.app" aria-label="Backend URL" />
+      <input id="token" class="field" type="password" placeholder="Private access code" autocomplete="current-password" aria-label="Private access code" />
+      <button id="connectBtn" class="btn">Connect</button>
+    </div>
+    <label class="muted" style="display:block;margin-top:7px"><input id="remember" type="checkbox" /> Remember access code on this device</label>
+  </div>
+
+  <div class="tabs" id="tabs">
+    <button class="tab active" data-tab="ufc">UFC Card</button>
+    <button class="tab" data-tab="value">UFC Value</button>
+    <button class="tab" data-tab="props">Props</button>
+    <button class="tab" data-tab="books">Bookie Checker</button>
+    <button class="tab" data-tab="football">Football</button>
+    <button class="tab" data-tab="backendTab">Backend</button>
+    <button class="tab" data-tab="controls">Controls</button>
+  </div>
+
+  <section id="ufc" class="section active">
+    <div class="grid">
+      <div class="card"><div class="row"><div><h2>Current UFC card</h2><div id="eventMeta" class="muted">Connect to load.</div></div><button class="btn secondary" onclick="loadUfc()">Refresh</button></div><div id="fightList"></div></div>
+    </div>
+  </section>
+
+  <section id="value" class="section"><div class="grid">
+    <div class="card"><div class="row"><div><h2>UFC model + live market value board</h2><div class="muted">Server-generated model probabilities. Research/paper only.</div></div><button class="btn secondary" onclick="loadValue()">Refresh</button></div><div id="valueSummary" class="kv" style="margin:10px 0"></div><div id="valueList"></div></div>
+  </div></section>
+
+  <section id="props" class="section"><div class="grid">
+    <div class="card half"><h2>Prop market catalogue</h2><div class="actions"><button class="btn secondary" onclick="loadProps()">Reload markets</button></div><div id="propCatalog"></div></div>
+    <div class="card half"><h2>Model readiness</h2><div class="actions"><button class="btn secondary" onclick="loadReadiness()">Check readiness</button><button class="btn warn" onclick="bootstrapData()">Build/update UFC data</button></div><pre id="readiness" class="raw">Connect to load.</pre></div>
+  </div></section>
+
+  <section id="books" class="section"><div class="grid">
+    <div class="card"><div class="row"><div><h2>Bookie checker</h2><div class="muted">Fresh exact-contract quotes only; effective Betfair prices account for commission when supplied by the backend.</div></div><button class="btn secondary" onclick="loadBooks()">Refresh</button></div><div class="actions"><button class="btn good" onclick="syncPrices()">Sync configured providers</button></div><div id="providerStatus"></div><div id="bookTable"></div></div>
+  </div></section>
+
+  <section id="football" class="section"><div class="grid">
+    <div class="card"><div class="row"><div><h2>Football value board</h2><div class="muted">Leakage-safe gate + fresh scanner opportunities.</div></div><button class="btn secondary" onclick="loadFootball()">Refresh</button></div><div id="footballBoard"></div></div>
+  </div></section>
+
+  <section id="backendTab" class="section"><div class="grid">
+    <div class="card half"><h2>Platform status</h2><div class="actions"><button class="btn secondary" onclick="loadBackend()">Refresh status</button></div><pre id="platformStatus" class="raw">Connect to load.</pre></div>
+    <div class="card half"><h2>Backend doctor</h2><pre id="doctor" class="raw">Connect to load.</pre></div>
+    <div class="card"><h2>Cloud status</h2><pre id="cloudStatus" class="raw">Connect to load.</pre></div>
+  </div></section>
+
+  <section id="controls" class="section"><div class="grid">
+    <div class="card half"><h2>Maintenance</h2><div class="muted">These run backend jobs. They do not place real-money bets.</div><div class="actions"><button class="btn good" onclick="syncPrices()">Sync prices</button><button class="btn warn" onclick="bootstrapData()">Refresh UFC history/model data</button><button class="btn warn" onclick="runProfitability()">Run UFC profitability backtest</button></div><pre id="controlOut" class="raw">Ready.</pre></div>
+    <div class="card half"><h2>Raw API tester</h2><input id="rawPath" class="field" value="/platform/status" style="width:100%"><div class="actions"><select id="rawMethod" class="field"><option>GET</option><option>POST</option></select><button class="btn secondary" onclick="rawCall()">Call endpoint</button></div><pre id="rawOut" class="raw"></pre></div>
+  </div></section>
+</div>
+<script>
+const DEFAULT_BACKEND='https://apimodel-cloud-live-production.up.railway.app';
+const $=id=>document.getElementById(id);
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[c]));
+let state={backend:DEFAULT_BACKEND,token:'',connected:false,card:null};
+
+function backend(){return ($('backend').value||DEFAULT_BACKEND).trim().replace(/\/+$/,'')}
+function token(){return $('token').value.trim()}
+function savePrefs(){localStorage.setItem('edge_backend',backend()); if($('remember').checked)localStorage.setItem('edge_token',token());else localStorage.removeItem('edge_token');}
+function restorePrefs(){ $('backend').value=localStorage.getItem('edge_backend')||DEFAULT_BACKEND; const t=localStorage.getItem('edge_token'); if(t){$('token').value=t;$('remember').checked=true} }
+function conn(ok,label){state.connected=ok;$('dot').className='dot '+(ok?'ok':'bad');$('connLabel').textContent=label}
+async function api(path,opt={}){
+  const url=path.startsWith('http')?path:backend()+path;
+  const headers={...(opt.headers||{})}; if(token()) headers['X-Edge-Token']=token(); if(opt.body && !headers['Content-Type']) headers['Content-Type']='application/json';
+  let r; try{r=await fetch(url,{...opt,headers,mode:'cors'})}catch(e){throw new Error('Network/CORS error: '+e.message+' — backend '+backend())}
+  const text=await r.text(); let data; try{data=JSON.parse(text)}catch{data=text}
+  if(!r.ok){const detail=(data&&data.detail)?data.detail:(typeof data==='string'?data:JSON.stringify(data));throw new Error(r.status+' '+r.statusText+': '+detail)} return data;
+}
+function pretty(o){return JSON.stringify(o,null,2)}
+function errBox(e){return `<div class="err"><b>Request failed</b><br>${esc(e.message||e)}</div>`}
+function metric(label,val){return `<div class="metric"><b>${esc(val??'—')}</b><span>${esc(label)}</span></div>`}
+
+async function connect(){
+  $('connectBtn').innerHTML='<span class="spinner"></span> Connecting'; savePrefs(); state.backend=backend();state.token=token();
+  try{const h=await fetch(backend()+'/health').then(r=>r.json()); const p=await api('/platform/status'); conn(true,'Connected · '+(p.version||h.version||'live')); await Promise.allSettled([loadUfc(),loadBackend(),loadReadiness()]);}
+  catch(e){conn(false,'Connection failed');$('fightList').innerHTML=errBox(e)} finally{$('connectBtn').textContent='Connect'}
+}
+
+async function loadUfc(){
+  $('fightList').innerHTML='<div class="muted"><span class="spinner"></span> Loading card…</div>';
+  try{
+    const card=await api('/mma/upcoming-card/current'); state.card=card;
+    const ev=card.event||{}; $('eventMeta').innerHTML=`<b>${esc(ev.event_name||'UFC')}</b> · ${esc(ev.venue||'')} ${esc(ev.city||'')} · ${card.fight_count??(card.fights||[]).length} fights`;
+    const fights=card.fights||[]; if(!fights.length){$('fightList').innerHTML='<div class="notice"><b>No fights are currently stored.</b><br>Use Controls → Refresh UFC history/model data, then refresh this card. If it remains empty, check Backend Doctor.</div>';return}
+    $('fightList').innerHTML=fights.map((f,i)=>{
+      const pa=f.projection_a||{},pb=f.projection_b||{};
+      const proj=(p,n)=>p.status==='BASELINE_OK'?`${n}: ${p.sig_strikes_expected??'—'} sig str · ${p.takedowns_expected??'—'} TD · ${p.confidence||''}`:`${n}: ${p.status||'model pending'}`;
+      return `<div class="fight"><div class="row"><div><div class="fight-title">${esc(f.fighter_a)} <span class="muted">vs</span> ${esc(f.fighter_b)}</div><div class="muted">${esc(f.card_section||'')} · ${esc(f.weight_class||'')} · ${esc(f.rounds||3)} rounds</div></div><span class="chip">#${esc(f.bout_order??i+1)}</span></div><div class="chips"><span class="chip ${pa.status==='BASELINE_OK'?'green':'amber'}">${esc(proj(pa,f.fighter_a))}</span><span class="chip ${pb.status==='BASELINE_OK'?'green':'amber'}">${esc(proj(pb,f.fighter_b))}</span></div></div>`
+    }).join('');
+  }catch(e){$('eventMeta').textContent='Could not load';$('fightList').innerHTML=errBox(e)}
+}
+
+async function loadValue(){
+  $('valueList').innerHTML='<div class="muted"><span class="spinner"></span> Loading value board…</div>';
+  try{const b=await api('/mma/value-board'); const g=b.profitability_gate||{};$('valueSummary').innerHTML=metric('Gate',g.status||'NOT_RUN')+metric('Evidence eligible',String(!!g.eligible))+metric('Model/market weight',b.model_weight_vs_market??'—')+metric('EV threshold',b.ev_threshold??'—');
+    const fights=b.fights||[];$('valueList').innerHTML=fights.length?fights.map(f=>{const s=f.signal;return `<div class="fight"><div class="fight-title">${esc(f.fighter_a)} vs ${esc(f.fighter_b)}</div><div class="muted">Model: ${esc(f.model_status||'—')} · P(A): ${f.p_model_a==null?'—':(100*f.p_model_a).toFixed(1)+'%'}</div>${s?`<div class="chips"><span class="chip ${s.status==='QUALIFIED_RESEARCH_SIGNAL'?'green':'amber'}">${esc(s.status)}</span><span class="chip">${esc(s.selection||'')}</span><span class="chip">EV ${(100*(s.ev||0)).toFixed(2)}%</span><span class="chip">${esc(s.bookmaker||'')} @ ${esc(s.odds||'—')}</span></div>`:'<div class="chips"><span class="chip amber">No complete live market pair</span></div>'}</div>`}).join(''):'<div class="notice">No current fights/value rows.</div>'
+  }catch(e){$('valueList').innerHTML=errBox(e)}
+}
+
+async function loadProps(){try{const p=await api('/mma/prop-markets');const arr=Array.isArray(p)?p:(p.markets||p.rows||[]);$('propCatalog').innerHTML=`<div class="muted">${arr.length} markets</div><div class="chips">`+arr.slice(0,180).map(x=>`<span class="chip">${esc(typeof x==='string'?x:(x.market_key||x.key||x.name||JSON.stringify(x)))}</span>`).join('')+'</div>'}catch(e){$('propCatalog').innerHTML=errBox(e)}}
+async function loadReadiness(){try{const r=await api('/mma/model-readiness');$('readiness').textContent=pretty(r)}catch(e){$('readiness').textContent=e.message}}
+
+async function loadBooks(){
+  $('bookTable').innerHTML='<div class="muted"><span class="spinner"></span> Loading quotes…</div>';
+  try{const [s,b]=await Promise.all([api('/providers/mma/status'),api('/mma/bookie-check')]);$('providerStatus').innerHTML='<pre class="raw">'+esc(pretty(s))+'</pre>'; const rows=Array.isArray(b)?b:(b.rows||b.quotes||b.results||[]);
+    if(!rows.length){$('bookTable').innerHTML='<div class="notice">No fresh captured quotes yet. Tap “Sync configured providers”. API/provider coverage determines which markets appear.</div>';return}
+    $('bookTable').innerHTML='<div class="tablewrap"><table class="tbl"><thead><tr><th>Fight</th><th>Market</th><th>Selection</th><th>Book</th><th>Odds</th><th>Age</th></tr></thead><tbody>'+rows.map(r=>`<tr><td>${esc(r.fight_key||'')}</td><td>${esc(r.market_key||'')}</td><td>${esc(r.selection||r.fighter||'')}</td><td>${esc(r.bookmaker||r.provider||'')}</td><td>${esc(r.effective_price||r.price||'')}</td><td>${r.age_seconds==null?'—':Math.round(r.age_seconds)+'s'}</td></tr>`).join('')+'</tbody></table></div>'
+  }catch(e){$('bookTable').innerHTML=errBox(e)}
+}
+async function syncPrices(){const out=$('controlOut');out.textContent='Syncing…';try{const r=await api('/providers/mma/sync-all',{method:'POST'});out.textContent=pretty(r);loadBooks()}catch(e){out.textContent=e.message}}
+async function bootstrapData(){const out=$('controlOut');out.textContent='Building/importing research data…';try{const r=await api('/mma/bootstrap-research-data',{method:'POST'});out.textContent=pretty(r);await Promise.allSettled([loadUfc(),loadReadiness()])}catch(e){out.textContent=e.message}}
+async function runProfitability(){const out=$('controlOut');out.textContent='Running profitability backtest…';try{const r=await api('/mma/profitability-backtest',{method:'POST'});out.textContent=pretty(r);loadValue()}catch(e){out.textContent=e.message}}
+
+async function loadFootball(){try{const r=await api('/football/value-board?sport=soccer_epl&limit=100&max_age_seconds=900');const rows=r.opportunities||[];$('footballBoard').innerHTML=`<div class="chips"><span class="chip ${r.profitability_gate&&r.profitability_gate.eligible?'green':'amber'}">Gate: ${esc((r.profitability_gate||{}).status||'not ready')}</span><span class="chip">${rows.length} rows</span></div>`+(rows.length?'<div class="tablewrap"><table class="tbl"><thead><tr><th>Event</th><th>Market</th><th>Selection</th><th>Book</th><th>Odds</th><th>EV</th><th>Status</th></tr></thead><tbody>'+rows.map(x=>`<tr><td>${esc(x.event_id||x.event_name||'')}</td><td>${esc(x.market||x.market_key||'')}</td><td>${esc(x.selection||'')}</td><td>${esc(x.bookmaker||'')}</td><td>${esc(x.best_odds||x.odds||'')}</td><td>${x.ev==null?'—':(100*x.ev).toFixed(2)+'%'}</td><td>${esc(x.signal_status||'')}</td></tr>`).join('')+'</tbody></table></div>':'<div class="notice">No current football scanner opportunities.</div>')}catch(e){$('footballBoard').innerHTML=errBox(e)}}
+
+async function loadBackend(){
+  const calls=[['platformStatus','/platform/status'],['doctor','/backend/doctor'],['cloudStatus','/cloud/status']];
+  for(const [id,path] of calls){try{$(id).textContent=pretty(await api(path))}catch(e){$(id).textContent=e.message}}
+}
+async function rawCall(){try{$('rawOut').textContent=pretty(await api($('rawPath').value.trim(),{method:$('rawMethod').value}))}catch(e){$('rawOut').textContent=e.message}}
+
+$('tabs').addEventListener('click',e=>{const b=e.target.closest('.tab');if(!b)return;document.querySelectorAll('.tab').forEach(x=>x.classList.toggle('active',x===b));document.querySelectorAll('.section').forEach(x=>x.classList.toggle('active',x.id===b.dataset.tab)); const t=b.dataset.tab;if(t==='value')loadValue();if(t==='props'){loadProps();loadReadiness()}if(t==='books')loadBooks();if(t==='football')loadFootball();if(t==='backendTab')loadBackend()});
+$('connectBtn').onclick=connect; restorePrefs();
+if(location.protocol==='https:' && location.hostname.includes('railway.app')) $('backend').value=location.origin;
+</script>
+</body>
+</html>
