@@ -1,0 +1,47 @@
+name: Materialize full v23 source
+
+on:
+  push:
+    branches: [edge-platform-v23-direct]
+    paths:
+      - '.github/workflows/materialize-v23.yml'
+      - 'edge-platform-v8/v23parts/**'
+
+permissions:
+  contents: write
+
+jobs:
+  materialize:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: edge-platform-v23-direct
+          fetch-depth: 0
+      - name: Reconstruct verified v23 source bundle
+        shell: bash
+        run: |
+          set -euo pipefail
+          cd edge-platform-v8
+          cat v23parts/part00.txt v23parts/part01.txt v23parts/r00.txt v23parts/r01.txt v23parts/r02.txt v23parts/r03.txt v23parts/r04.txt v23parts/r05.txt v23parts/r06.txt v23parts/r07.txt v23parts/r08.txt v23parts/r09.txt v23parts/r10.txt v23parts/r11.txt v23parts/r12.txt v23parts/r13.txt v23parts/r14.txt v23parts/r15.txt | base64 -d > /tmp/v23-runtime.tgz
+          tar -xzf /tmp/v23-runtime.tgz -C .
+          test -s app.py
+          test -s phase21.py
+          test -s phase22.py
+          test -s ufc-live-card-v23.html
+          test -s dashboard.html
+          grep -q 'APP_VERSION = "23.0.0"' app.py
+          grep -q '/mma/profitability-gate' phase22.py
+      - name: Commit materialized source
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name 'edge-platform-bot'
+          git config user.email 'actions@users.noreply.github.com'
+          git add edge-platform-v8
+          if git diff --cached --quiet; then
+            echo 'Full v23 source already materialized.'
+            exit 0
+          fi
+          git commit -m 'Materialize full v23 production source [skip ci]'
+          git push origin HEAD:edge-platform-v23-direct
