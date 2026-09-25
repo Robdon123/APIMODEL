@@ -2,9 +2,11 @@ import base64, hashlib, io, os, pathlib, shutil, tarfile
 
 ROOT = pathlib.Path(__file__).resolve().parent
 PART_DIR = ROOT / 'v23parts'
-PARTS = sorted(PART_DIR.glob('part*.txt')) + sorted(PART_DIR.glob('r*.txt'))
-if not PARTS:
-    raise SystemExit('No v23 bundle parts found')
+NAMES = ['part00.txt','part01.txt'] + [f'r{i:02d}.txt' for i in range(16)]
+PARTS = [PART_DIR / name for name in NAMES]
+missing = [p.name for p in PARTS if not p.exists()]
+if missing:
+    raise SystemExit('Missing v23 bundle parts: ' + ','.join(missing))
 
 encoded = ''.join(p.read_text().strip() for p in PARTS)
 blob = base64.b64decode(encoded, validate=True)
@@ -27,5 +29,5 @@ if not app_file.exists():
 os.chdir(runtime)
 os.environ.setdefault('EDGE_DB_PATH', '/data/edge.db')
 port = os.getenv('PORT', '8000')
-# Full v23 feature-parity runtime: do not replace this with the lightweight cloud wrapper.
+# Full v23 feature-parity runtime: never replace this with the lightweight cloud wrapper.
 os.execvp('uvicorn', ['uvicorn','app:app','--host','0.0.0.0','--port',port])
