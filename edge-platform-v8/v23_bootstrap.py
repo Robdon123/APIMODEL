@@ -34,7 +34,12 @@ except (tarfile.TarError, EOFError, OSError) as e:
 for name in required:
     if not (runtime / name).exists():
         raise SystemExit(f'v23 extracted runtime missing {name}')
-shutil.copy2(mobile_html, runtime / 'edge-platform-full-mobile.html')
+mobile_target = runtime / 'edge-platform-full-mobile.html'
+shutil.copy2(mobile_html, mobile_target)
+# Backward-compatible UI shape fix for bookie-check responses.
+mobile_text = mobile_target.read_text()
+mobile_text = mobile_text.replace("const rows=Array.isArray(b)?b:(b.rows||b.quotes||b.results||[]);", "const rows=Array.isArray(b)?b:(b.board||b.rows||b.quotes||b.results||[]);")
+mobile_target.write_text(mobile_text)
 
 # Preserve the phone entry URL, serve the complete standalone UI before auth middleware,
 # and fail closed if a future release drops core model/provider routes.
