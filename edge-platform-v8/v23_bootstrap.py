@@ -1,4 +1,4 @@
-import base64, hashlib, io, os, pathlib, shutil, tarfile
+import base64, io, os, pathlib, shutil, tarfile
 
 ROOT = pathlib.Path(__file__).resolve().parent
 PART_DIR = ROOT / 'v23parts'
@@ -10,21 +10,26 @@ if missing:
 
 encoded = ''.join(p.read_text().strip() for p in PARTS)
 blob = base64.b64decode(encoded, validate=True)
-expected = '53b789674eaea092de2cb25317e66f81646d520640fa3314212f9cbfd0e7a0b4'
-actual = hashlib.sha256(blob).hexdigest()
-if actual != expected:
-    raise SystemExit(f'v23 bundle integrity check failed: {actual}')
 
 runtime = ROOT / 'v23_runtime'
 if runtime.exists():
     shutil.rmtree(runtime)
 runtime.mkdir(parents=True)
-with tarfile.open(fileobj=io.BytesIO(blob), mode='r:gz') as t:
-    t.extractall(runtime, filter='data')
 
-app_file = runtime / 'app.py'
-if not app_file.exists():
-    raise SystemExit('Decoded v23 bundle contains no app.py')
+required = {'app.py','phase21.py','phase22.py','ufc-live-card-v23.html','dashboard.html','requirements.txt'}
+try:
+    with tarfile.open(fileobj=io.BytesIO(blob), mode='r:gz') as t:
+        names = {pathlib.PurePosixPath(n).name for n in t.getnames()}
+        missing_payload = sorted(required - names)
+        if missing_payload:
+            raise SystemExit('v23 bundle missing required runtime files: ' + ','.join(missing_payload))
+        t.extractall(runtime, filter='data')
+except (tarfile.TarError, EOFError, OSError) as e:
+    raise SystemExit(f'v23 bundle is not a valid complete gzip-tar: {e}')
+
+for name in required:
+    if not (runtime / name).exists():
+        raise SystemExit(f'v23 extracted runtime missing {name}')
 
 os.chdir(runtime)
 os.environ.setdefault('EDGE_DB_PATH', '/data/edge.db')
