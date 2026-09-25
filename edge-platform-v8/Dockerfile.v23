@@ -10,7 +10,7 @@ COPY v23parts ./v23parts
 RUN python -c "import base64,hashlib,pathlib,tarfile; p=pathlib.Path('v23parts'); parts=[p/'part00.txt',p/'part01.txt']+sorted(p.glob('r*.txt')); data=''.join(x.read_text() for x in parts); raw=base64.b64decode(data); assert hashlib.sha256(raw).hexdigest()=='53b789674eaea092de2cb25317e66f81646d520640fa3314212f9cbfd0e7a0b4'; a=pathlib.Path('/tmp/v23prod.tgz'); a.write_bytes(raw); pathlib.Path('/app').mkdir(parents=True,exist_ok=True); t=tarfile.open(a,'r:gz'); t.extractall('/app'); t.close()"
 
 WORKDIR /app
-RUN pip install --no-cache-dir -r requirements.txt
+RUN pip install --no-cache-dir -r requirements.txt && mkdir -p /data
 
 EXPOSE 8000
 CMD ["sh","-c","exec uvicorn app:app --host 0.0.0.0 --port ${PORT:-8000}"]
