@@ -8,6 +8,10 @@ missing = [p.name for p in PARTS if not p.exists()]
 if missing:
     raise SystemExit('Missing v23 bundle parts: ' + ','.join(missing))
 
+mobile_html = ROOT / 'edge-platform-full-mobile.html'
+if not mobile_html.exists():
+    raise SystemExit('Missing full mobile HTML')
+
 encoded = ''.join(p.read_text().strip() for p in PARTS)
 blob = base64.b64decode(encoded, validate=True)
 
@@ -30,12 +34,13 @@ except (tarfile.TarError, EOFError, OSError) as e:
 for name in required:
     if not (runtime / name).exists():
         raise SystemExit(f'v23 extracted runtime missing {name}')
+shutil.copy2(mobile_html, runtime / 'edge-platform-full-mobile.html')
 
-# Preserve the old phone entry URL and fail closed if a future release drops core features.
-(runtime / 'cloud_entry_full.py').write_text('''from app import app as inner_app\n\nREQUIRED_PATHS = {\n    "/health", "/backend/doctor", "/backend/status", "/ufc", "/login",\n    "/mma/upcoming-card/current", "/mma/upcoming-model-v21", "/mma/prop-markets",\n    "/mma/prop-evaluate-live", "/mma/best-price", "/mma/bookie-check",\n    "/providers/mma/status", "/providers/mma/sync-all", "/mma/model-readiness",\n    "/mma/profitability-backtest", "/mma/profitability-gate", "/mma/value-board",\n    "/football/prop-model", "/football/prop-scan", "/football/value-board",\n    "/research/gate", "/research/drift", "/research/open-source-engines",\n    "/data/statsbomb/open/competitions", "/data/mma/ufcstats/status",\n    "/platform/status", "/cloud/status", "/cloud/maintenance"\n}\npaths = {getattr(r, "path", "") for r in inner_app.routes}\nmissing = sorted(REQUIRED_PATHS - paths)\nif missing or len(paths) < 130:\n    raise RuntimeError(f"FEATURE_PARITY_GATE_FAILED missing={missing} route_count={len(paths)}")\n\nclass PhoneAlias:\n    def __init__(self, inner): self.inner = inner\n    async def __call__(self, scope, receive, send):\n        if scope.get("type") == "http" and scope.get("path") == "/mobile":\n            await send({"type":"http.response.start","status":307,"headers":[(b"location",b"/login"),(b"content-length",b"0")]})\n            await send({"type":"http.response.body","body":b""})\n            return\n        await self.inner(scope, receive, send)\n\napp = PhoneAlias(inner_app)\n''')
+# Preserve the phone entry URL, serve the complete standalone UI before auth middleware,
+# and fail closed if a future release drops core model/provider routes.
+(runtime / 'cloud_entry_full.py').write_text('''from pathlib import Path\nfrom app import app as inner_app\n\nREQUIRED_PATHS = {\n    "/health", "/backend/doctor", "/backend/status", "/ufc", "/login",\n    "/mma/upcoming-card/current", "/mma/upcoming-model-v21", "/mma/prop-markets",\n    "/mma/prop-evaluate-live", "/mma/best-price", "/mma/bookie-check",\n    "/providers/mma/status", "/providers/mma/sync-all", "/mma/model-readiness",\n    "/mma/profitability-backtest", "/mma/profitability-gate", "/mma/value-board",\n    "/football/prop-model", "/football/prop-scan", "/football/value-board",\n    "/research/gate", "/research/drift", "/research/open-source-engines",\n    "/data/statsbomb/open/competitions", "/data/mma/ufcstats/status",\n    "/platform/status", "/cloud/status", "/cloud/maintenance"\n}\npaths = {getattr(r, "path", "") for r in inner_app.routes}\nmissing = sorted(REQUIRED_PATHS - paths)\nif missing or len(paths) < 130:\n    raise RuntimeError(f"FEATURE_PARITY_GATE_FAILED missing={missing} route_count={len(paths)}")\n\nMOBILE = Path(__file__).with_name("edge-platform-full-mobile.html")\nclass PhoneAlias:\n    def __init__(self, inner): self.inner = inner\n    async def __call__(self, scope, receive, send):\n        if scope.get("type") == "http" and scope.get("path") in ("/mobile", "/app"):\n            body = MOBILE.read_bytes()\n            await send({"type":"http.response.start","status":200,"headers":[(b"content-type",b"text/html; charset=utf-8"),(b"cache-control",b"no-store"),(b"content-length",str(len(body)).encode())]})\n            await send({"type":"http.response.body","body":body})\n            return\n        await self.inner(scope, receive, send)\n\napp = PhoneAlias(inner_app)\n''')
 
 os.chdir(runtime)
 os.environ.setdefault('EDGE_DB_PATH', '/data/edge.db')
 port = os.getenv('PORT', '8000')
-# Full v23 feature-parity runtime: never replace this with the lightweight cloud wrapper.
 os.execvp('uvicorn', ['uvicorn','cloud_entry_full:app','--host','0.0.0.0','--port',port])
