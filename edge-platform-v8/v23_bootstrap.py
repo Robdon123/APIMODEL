@@ -9,10 +9,11 @@ ROOT = Path(__file__).resolve().parent
 PARTS = ROOT / "v23parts"
 TARGET = Path("/tmp/edge-platform-v23")
 
-parts = [PARTS / "part00.txt", PARTS / "part01.txt"] + sorted(PARTS.glob("r*.txt"))
-missing = [str(p) for p in parts if not p.exists()]
-if missing:
-    raise SystemExit(f"Missing staged v23 parts: {missing}")
+# r00..r15 are the complete staged archive. Older part00/part01 files are
+# retained only for audit history and must not be concatenated here.
+parts = sorted(PARTS.glob("r*.txt"))
+if not parts:
+    raise SystemExit("Missing staged v23 r*.txt bundle parts")
 encoded = "".join(p.read_text().strip() for p in parts)
 blob = base64.b64decode(encoded)
 actual = hashlib.sha256(blob).hexdigest()
@@ -25,8 +26,6 @@ archive.write_bytes(blob)
 with tarfile.open(archive, "r:gz") as tf:
     tf.extractall(TARGET)
 
-# A Railway Volume mounted at /data makes this durable. The directory is
-# created even before the volume is attached so first boot cannot fail.
 db_path = Path(os.getenv("EDGE_DB_PATH", str(TARGET / "edge.db")))
 db_path.parent.mkdir(parents=True, exist_ok=True)
 os.environ["EDGE_DB_PATH"] = str(db_path)
