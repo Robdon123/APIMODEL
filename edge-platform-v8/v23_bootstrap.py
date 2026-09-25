@@ -27,4 +27,5 @@ if not app_file.exists():
 os.chdir(runtime)
 os.environ.setdefault('EDGE_DB_PATH', '/data/edge.db')
 port = os.getenv('PORT', '8000')
+# Full v23 feature-parity runtime: do not replace this with the lightweight cloud wrapper.
 os.execvp('uvicorn', ['uvicorn','app:app','--host','0.0.0.0','--port',port])
